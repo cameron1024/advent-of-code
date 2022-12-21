@@ -1,4 +1,3 @@
-#![feature(box_patterns)]
 use std::collections::HashMap;
 
 const INPUT: &str = include_str!("../inputs/day_21");
@@ -111,10 +110,10 @@ impl Expr {
         match self {
             Expr::Human => None,
             Expr::Const(i) => Some(*i),
-            Expr::Add(box a, box b) => Some(a.eval()? + b.eval()?),
-            Expr::Sub(box a, box b) => Some(a.eval()? - b.eval()?),
-            Expr::Mul(box a, box b) => Some(a.eval()? * b.eval()?),
-            Expr::Div(box a, box b) => Some(a.eval()? / b.eval()?),
+            Expr::Add(a, b) => Some(a.eval()? + b.eval()?),
+            Expr::Sub(a, b) => Some(a.eval()? - b.eval()?),
+            Expr::Mul(a, b) => Some(a.eval()? * b.eval()?),
+            Expr::Div(a, b) => Some(a.eval()? / b.eval()?),
         }
     }
 }
