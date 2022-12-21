@@ -21,7 +21,7 @@ fn part_2() -> i64 {
     let a = monkeys.to_expr(a);
     let b = monkeys.to_expr(b);
 
-    match (a.force_eval(), b.force_eval()) {
+    match (a.eval(), b.eval()) {
         (None, Some(i)) => solve(a, i),
         (Some(i), None) => solve(b, i),
         _ => unreachable!(),
@@ -76,7 +76,7 @@ impl<'a> Monkeys<'a> {
     }
 }
 
-fn parse_line<'a>(s: &'a str) -> (&'a str, Monkey<'a>) {
+fn parse_line(s: &str) -> (&str, Monkey) {
     let (name, s) = s.split_once(": ").unwrap();
 
     if let Ok(i) = s.parse() {
@@ -107,25 +107,14 @@ enum Expr {
 }
 
 impl Expr {
-    fn contains_human(&self) -> bool {
-        match self {
-            Expr::Human => true,
-            Expr::Const(_) => false,
-            Expr::Add(box a, box b) => a.contains_human() || b.contains_human(),
-            Expr::Sub(box a, box b) => a.contains_human() || b.contains_human(),
-            Expr::Mul(box a, box b) => a.contains_human() || b.contains_human(),
-            Expr::Div(box a, box b) => a.contains_human() || b.contains_human(),
-        }
-    }
-
-    fn force_eval(&self) -> Option<i64> {
+    fn eval(&self) -> Option<i64> {
         match self {
             Expr::Human => None,
             Expr::Const(i) => Some(*i),
-            Expr::Add(box a, box b) => Some(a.force_eval()? + b.force_eval()?),
-            Expr::Sub(box a, box b) => Some(a.force_eval()? - b.force_eval()?),
-            Expr::Mul(box a, box b) => Some(a.force_eval()? * b.force_eval()?),
-            Expr::Div(box a, box b) => Some(a.force_eval()? / b.force_eval()?),
+            Expr::Add(box a, box b) => Some(a.eval()? + b.eval()?),
+            Expr::Sub(box a, box b) => Some(a.eval()? - b.eval()?),
+            Expr::Mul(box a, box b) => Some(a.eval()? * b.eval()?),
+            Expr::Div(box a, box b) => Some(a.eval()? / b.eval()?),
         }
     }
 }
@@ -134,22 +123,22 @@ fn solve(expr: Expr, target: i64) -> i64 {
     match expr {
         Expr::Human => target,
         Expr::Const(_) => unreachable!(),
-        Expr::Add(a, b) => match (a.force_eval(), b.force_eval()) {
+        Expr::Add(a, b) => match (a.eval(), b.eval()) {
             (None, Some(i)) => solve(*a, target - i),
             (Some(i), None) => solve(*b, target - i),
             _ => unreachable!(),
         },
-        Expr::Sub(a, b) => match (a.force_eval(), b.force_eval()) {
+        Expr::Sub(a, b) => match (a.eval(), b.eval()) {
             (None, Some(i)) => solve(*a, target + i),
             (Some(i), None) => solve(*b, i - target),
             _ => unreachable!(),
         },
-        Expr::Mul(a, b) => match (a.force_eval(), b.force_eval()) {
+        Expr::Mul(a, b) => match (a.eval(), b.eval()) {
             (None, Some(i)) => solve(*a, target / i),
             (Some(i), None) => solve(*b, target / i),
             _ => unreachable!(),
         },
-        Expr::Div(a, b) => match (a.force_eval(), b.force_eval()) {
+        Expr::Div(a, b) => match (a.eval(), b.eval()) {
             (None, Some(i)) => solve(*a, target * i),
             (Some(i), None) => solve(*b, i / target),
             _ => unreachable!(),
